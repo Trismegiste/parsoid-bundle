@@ -1,0 +1,20 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Facade
+    Trismegiste\ParsoidBundle\Internal\DataAccess: ~
+    Trismegiste\ParsoidBundle\ParserFactory: ~
+    Trismegiste\ParsoidBundle\SiteConfigFactory: ~
+    # @todo remove public
+    Trismegiste\ParsoidBundle\TemplateSubstitutionTransformer:
+        public: true
+
+    # Tag handlers
+    Trismegiste\ParsoidBundle\TagHandler\Carrousel:
+        tags:
+            - {name: 'parsoid.tag', tag: 'carrousel' }
+    Trismegiste\ParsoidBundle\TagHandler\Param:
+        tags:
+            - {name: 'parsoid.tag', tag: 'param' }

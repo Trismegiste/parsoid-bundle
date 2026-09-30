@@ -1,0 +1,8 @@
+trismegiste_parsoid:
+    provider:
+        page: Trismegiste\ParsoidBundle\Tests\Mockup\PageMock
+        picture: Trismegiste\ParsoidBundle\Tests\Mockup\PictureMock
+        template: Trismegiste\ParsoidBundle\Tests\Mockup\TemplateMock
+    interwiki:
+        ep: 'https://eclipse-savage.fandom.com/fr/wiki/$1'
+        wh40k: 'https://wh40k.lexicanum.com/wiki/$1'

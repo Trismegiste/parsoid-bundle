@@ -1,0 +1,35 @@
+{
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.3",
+        "wikimedia/parsoid": "1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trismegiste\\ParsoidBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Trismegiste\\ParsoidBundle\\Tests\\": "tests/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Trismegiste/mediawiki-services-parsoid"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "^7.4",
+        "symfony/css-selector": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/http-kernel": "^7.4",
+        "symfony/config": "^7.4",
+        "symfony/yaml": "^7.4"
+    }
+}

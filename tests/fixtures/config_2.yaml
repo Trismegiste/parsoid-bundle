@@ -1,0 +1,5 @@
+trismegiste_parsoid:
+    provider:
+        page: Trismegiste\ParsoidBundle\Tests\Mockup\PageMock
+        picture: Trismegiste\ParsoidBundle\Tests\Mockup\PictureMock
+        template: Trismegiste\ParsoidBundle\Tests\Mockup\TemplateMock

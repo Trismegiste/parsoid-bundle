@@ -1,0 +1,14 @@
+services:
+    Trismegiste\ParsoidBundle\LinkDefault:
+        tags:
+            - {name: 'parsoid.target', target: 'default'}
+            
+    consumer:
+        class: Trismegiste\ParsoidBundle\Tests\Mockup\Consumer
+        public: true
+        arguments:
+            - '@parsoid.target.default'
+
+    Trismegiste\ParsoidBundle\Tests\Mockup\PageMock: ~
+    Trismegiste\ParsoidBundle\Tests\Mockup\PictureMock: ~
+    Trismegiste\ParsoidBundle\Tests\Mockup\TemplateMock: ~
