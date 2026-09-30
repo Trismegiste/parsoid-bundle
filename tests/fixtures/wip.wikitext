@@ -1,0 +1,3 @@
+<div class="notification">
+<div class="flash-error">{{{1|Work in progress}}}</div>
+</div>

@@ -1,0 +1,12 @@
+=== Known locations ===
+<table class="location">
+{{#if: {{{work|}}}
+    |<tr><th>Working at</th><td>[[{{{work}}}]]</td><td><i class="icon-ollama" data-location-type="work" data-location-name="{{{work}}}"></i></td></tr>
+}}
+{{#if: {{{habitat|}}}
+    |<tr><th>Living at</th><td>[[{{{habitat}}}]]</td><td><i class="icon-ollama" data-location-type="habitat" data-location-name="{{{habitat}}}"></i></td></tr>
+}}
+{{#if: {{{fun|}}}
+    |<tr><th>Having fun at</th><td>[[{{{fun}}}]]</td><td><i class="icon-ollama" data-location-type="fun" data-location-name="{{{fun}}}"></i></td></tr>
+}}
+</table>
