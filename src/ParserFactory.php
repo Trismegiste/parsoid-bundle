@@ -8,7 +8,6 @@ namespace Trismegiste\ParsoidBundle;
 
 use Trismegiste\ParsoidBundle\Internal\DataAccess;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Parsoid;
 
 /**
  * Creates Parser for different targets
@@ -30,16 +29,6 @@ class ParserFactory
      */
     public function create(SiteConfig $target): Parser
     {
-        return new Parser($this->createParsoid($target));
-    }
-
-    /**
-     * Creates the internal parsoid parser for a given rendering target.
-     * @param string $target
-     * @return Parsoid
-     */
-    protected function createParsoid(SiteConfig $target): Parsoid
-    {
-        return new Parsoid($target, $this->access);
+        return new Parser($target, $this->access);
     }
 }

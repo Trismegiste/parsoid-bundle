@@ -5,7 +5,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.3",
-        "wikimedia/parsoid": "1.*"
+        "wikimedia/parsoid": "dev-master#362f353c65936593fffa95c2d8150acb3838bc60"
     },
     "autoload": {
         "psr-4": {
@@ -17,12 +17,6 @@
             "Trismegiste\\ParsoidBundle\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Trismegiste/mediawiki-services-parsoid"
-        }
-    ],
     "require-dev": {
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "^7.4",
