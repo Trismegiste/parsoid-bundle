@@ -8,6 +8,7 @@ namespace Trismegiste\ParsoidBundle\Tests\TagHandler;
 
 use Override;
 use Trismegiste\ParsoidBundle\Contract\WikiFile;
+use Trismegiste\ParsoidBundle\PhpUnit\TagTestCase;
 use Trismegiste\ParsoidBundle\TagHandler\Carrousel;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 

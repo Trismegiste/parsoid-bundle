@@ -4,7 +4,7 @@
  * Parsoid bundle
  */
 
-namespace Trismegiste\ParsoidBundle\Tests\TagHandler;
+namespace Trismegiste\ParsoidBundle\PhpUnit;
 
 use Override;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -21,7 +21,7 @@ use Trismegiste\ParsoidBundle\SiteConfigFactory;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 
 /**
- * Generic test case for tag handler
+ * Generic test case for testing tag handlers
  */
 abstract class TagTestCase extends TestCase
 {

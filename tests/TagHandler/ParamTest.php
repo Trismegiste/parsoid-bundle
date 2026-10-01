@@ -7,6 +7,7 @@
 namespace Trismegiste\ParsoidBundle\Tests\TagHandler;
 
 use Override;
+use Trismegiste\ParsoidBundle\PhpUnit\TagTestCase;
 use Trismegiste\ParsoidBundle\TagHandler\Param;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 

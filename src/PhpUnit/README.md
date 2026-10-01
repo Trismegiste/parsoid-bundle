@@ -1,0 +1,1 @@
+Those classes are generic TestCase intended for testing with PhpUnit
