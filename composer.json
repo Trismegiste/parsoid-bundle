@@ -6,7 +6,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.3",
-        "wikimedia/parsoid": "dev-master#362f353c65936593fffa95c2d8150acb3838bc60"
+        "trismegiste/parsoid-with-template": "^1"
     },
     "autoload": {
         "psr-4": {
