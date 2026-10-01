@@ -19,9 +19,13 @@ use Trismegiste\ParsoidBundle\Internal\ParsoidPageContent;
 use Trismegiste\ParsoidBundle\Internal\TargetSiteConfig;
 use Trismegiste\ParsoidBundle\Parser;
 use Trismegiste\ParsoidBundle\ParserFactory;
+use Trismegiste\ParsoidBundle\PhpUnit\DataProvider;
 
 class ParserTest extends TestCase
 {
+
+    use DataProvider;
+
     protected Parser $sut;
     protected Crawler $crawler;
     protected MockObject $page;
@@ -122,20 +126,6 @@ class ParserTest extends TestCase
         $this->assertEquals('./exist', $this->crawler->filter('a')->attr('href'));
     }
 
-    static public function getExistingMedia(): array
-    {
-        return [
-            ['[[file:lolcat]]'],
-            ['[[ file:lolcat]]'],
-            ['[[file:lolcat ]]'],
-            ['[[file :lolcat]]'],
-            ['[[file: lolcat]]'],
-            ['[[ file: lolcat]]'],
-            ['[[ file : lolcat ]]'],
-            ['[[   file   :   lolcat   ]]']
-        ];
-    }
-
     /** @dataProvider getExistingMedia */
     public function testExistingPicture($link)
     {
@@ -188,20 +178,8 @@ class ParserTest extends TestCase
         $this->assertEquals('yolo', $this->crawler->filter('table tbody tr td')->text());
     }
 
-    public function getLink(): array
-    {
-        return [
-            ['Àvà'],
-            ['Évé'],
-            ['Çaça'],
-            ['Æther'],
-            ['Espacé titre'],
-            ["Quo'ta'tion"]
-        ];
-    }
-
     /**
-     * @dataProvider getLink
+     * @dataProvider getLinkWithSpecialChar
      */
     public function testSpecialCharacter(string $title)
     {
@@ -214,7 +192,7 @@ class ParserTest extends TestCase
     }
 
     /**
-     * @dataProvider getLink
+     * @dataProvider getLinkWithSpecialChar
      */
     public function testSpecialCharacterWithName(string $title)
     {
