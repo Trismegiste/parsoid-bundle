@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -22,18 +21,10 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
  */
 class Parser
 {
-    const parserOpts = [
-        'body_only' => true,
-        'wrapSections' => false,
-        'discardDataParsoid' => true,
-        'nativeTemplateExpansion' => true,
-        'skipLanguageConversionPass' => true
-    ];
-
     public function __construct(
-            protected SiteConfig $siteConfig,
-            protected DataAccess $dataAccess,
-            protected string $langague = 'en') {}
+        protected SiteConfig $siteConfig,
+        protected DataAccess $dataAccess,
+        protected string $langague = 'en') {}
 
     public function parse(string $page, string $pageTitle = 'Wiki'): string
     {
@@ -49,10 +40,13 @@ class Parser
         ]);
 
         // wikitext to html
-        $contentModel = null;
-        $handler = $env->getContentHandler($contentModel);
-        $extApi = new ParsoidExtensionAPI($env);
-        $doc = $handler->toDOM($extApi);
+        $pipelineFactory = $env->getPipelineFactory();
+        $pipe = $pipelineFactory->getPipeline('fullparse-wikitext-to-dom');
+        $pipe->init([
+            'frame' => $env->topFrame,
+            'toFragment' => false,
+        ]);
+        $doc = $pipe->parseChunkily($page, ['sol' => true])->ownerDocument;
         $body = DOMCompat::getBody($doc);
 
         // adding data-parsoid attributes

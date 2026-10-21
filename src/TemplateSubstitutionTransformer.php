@@ -37,6 +37,14 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
  */
 class TemplateSubstitutionTransformer
 {
+    const parserOpts = [
+        'body_only' => true,
+        'wrapSections' => false,
+        'discardDataParsoid' => true,
+        'nativeTemplateExpansion' => true,
+        'skipLanguageConversionPass' => true
+    ];
+
     protected SiteConfig $siteConfig;
 
     public function __construct(SiteConfigFactory $scf, protected DataAccess $dataAccess)
@@ -127,6 +135,6 @@ class TemplateSubstitutionTransformer
         $pageConfig = new ParsoidPageConfig($pageContent, $wikitext, 'en');
         $metadata = new StubMetadataCollector($siteConfig);
 
-        return new Env($siteConfig, $pageConfig, $dataAccess, $metadata, Parser::parserOpts);
+        return new Env($siteConfig, $pageConfig, $dataAccess, $metadata, self::parserOpts);
     }
 }
