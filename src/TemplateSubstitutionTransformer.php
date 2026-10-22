@@ -6,15 +6,19 @@
 
 namespace Trismegiste\ParsoidBundle;
 
-use RuntimeException;
 use Trismegiste\ParsoidBundle\Internal\DataAccess;
 use Trismegiste\ParsoidBundle\Internal\ParsoidLinkTarget;
-use Trismegiste\ParsoidBundle\Internal\ParsoidPageConfig;
-use Trismegiste\ParsoidBundle\Internal\ParsoidPageContent;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 /**
@@ -71,21 +75,15 @@ class TemplateSubstitutionTransformer
                 if (is_string($key) && preg_match('#^subst:(.+)$#', $key, $match)) {
                     $stringToReplace = $token->dataParsoid->src;
                     $templateName = trim($match[1]);
-
-                    $param = [];
-                    for ($idx = 1; $idx < count($token->attribs); $idx++) {
-                        $kv = $token->attribs[$idx];
-                        // named parameter or indexed parameter ?
-                        $key = empty($kv->k) ? $idx : $kv->k; // @todo Should I use $idx or a counter in parallel for unnamed parameters ? I don't know.
-                        $param[$key] = $kv->v;
+                    $transclusion = $this->dataAccess->fetchTemplateSource($env->getPageConfig(), new ParsoidLinkTarget($templateName));
+                    if (is_null($transclusion)) {
+                        continue;
                     }
 
-                    try {
-                        $parsed = $this->processTemplate($templateName, $param);
-                        $wikitext = str_replace($stringToReplace, $parsed, $wikitext);
-                    } catch (\Exception $ex) {
-                        // don't care, some logs perhaps ?
-                    }
+                    array_shift($token->attribs);
+                    $parsed = $this->processTemplate($transclusion->getContent('main'), $token->attribs);
+
+                    $wikitext = str_replace($stringToReplace, $parsed, $wikitext);
                 }
             }
         }
@@ -94,36 +92,38 @@ class TemplateSubstitutionTransformer
     }
 
     /**
-     * Crude replacement of parameters of the template. No recursive replacement.
-     * @param string $templateName
+     * Ful-cycle of template rendering for replacement
+     * @param string $template
      * @param array $param
      * @return string
      */
-    protected function processTemplate(string $templateName, array $param): string
+    protected function processTemplate(string $template, array $param): string
     {
-        $mock = new ParsoidPageConfig(new ParsoidPageContent(''), $templateName, 'en');
-        $content = $this->dataAccess->fetchTemplateSource($mock, new ParsoidLinkTarget($templateName));
-        if (is_null($content)) {
-            throw new RuntimeException("$templateName is missing");
-        }
+        $env = $this->buildEnv($template); // because Env is not re-usable
 
-        return preg_replace_callback('#(\{\{\{([^\}]+)\}\}\})#', function ($match) use ($param) {
-            $placeholder = explode('|', $match[2]);
+        $frame = new Frame(Title::newFromText('substition', $env->getSiteConfig()), $env, $param, $template);
+        $pipeline = $this->contextFactory->createFullParserPipeline($env, $frame);
 
-            // if the parameter exists in the given list associated with the template, we replace it
-            if (key_exists($placeholder[0], $param)) {
-                return $param[$placeholder[0]];
+        $doc = $pipeline->parseChunkily($template, ['sol' => true])->ownerDocument;
+        $body = DOMCompat::getBody($doc);
+
+        // adding data-parsoid attributes
+        DOMDataUtils::visitAndStoreDataAttribs($body, [
+            'storeInPageBundle' => false,
+            'outputContentVersion' => $env->getOutputContentVersion(),
+        ]);
+
+        DOMUtils::visitDOM($body, function ($node, array $options = []) {
+            if (($node instanceof Element) &&
+                (DOMUtils::matchTypeOf($node, '#mw:Param#') || DOMUtils::matchTypeOf($node, '#mw:Transclusion#'))) {
+                DOMDataUtils::removeAttributeObject($node, 'typeof');
             }
+        }, []);
 
-            // the param didn't exist but there is a default value so we replace it
-            if (2 === count($placeholder)) {
-                return $placeholder[1];
-            }
+        $html = ContentUtils::toXML($body, ['innerXML' => true]);
 
-            // No given param, no default, we keep the entry as it was.
-            // Another option is to simply throw an exception. No subst until all parameters are filled
-            return $match[0];
-        }, $content->getContent('main'));
+        $serializer = new WikitextSerializer($env, []);
+        return $serializer->htmlToWikitext([], $html);
     }
 
     public function buildEnv(string $wikitext): Env

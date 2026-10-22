@@ -103,7 +103,7 @@ class TargetSiteConfig extends SiteConfig
     #[Override]
     public function bswRegexp(): string
     {
-        throw new ParsoidException('Not implemented (should not be called)');
+        return '#__MOCK__#';
     }
 
     #[Override]
@@ -115,7 +115,7 @@ class TargetSiteConfig extends SiteConfig
     #[Override]
     public function categoryRegexp(): string
     {
-        throw new ParsoidException('Not implemented (should not be called)');
+        return '#__CATEGROY__#';
     }
 
     #[Override]
@@ -228,7 +228,7 @@ class TargetSiteConfig extends SiteConfig
     #[Override]
     public function redirectRegexp(): string
     {
-        throw new ParsoidException('Not implemented (should not be called)');
+        return '#__REDIRECT__#';
     }
 
     #[Override]

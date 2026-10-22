@@ -16,6 +16,8 @@ class TemplateMock implements TemplateAccess
     #[Override]
     public function fetchTemplate(string $title): ?PageContent
     {
-        return new ParsoidPageContent(file_get_contents(__DIR__ . "/../fixtures/$title.wikitext"));
+        $f = __DIR__ . "/../fixtures/$title.wikitext";
+
+        return file_exists($f) ? new ParsoidPageContent(file_get_contents($f)) : null;
     }
 }
