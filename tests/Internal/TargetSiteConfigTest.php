@@ -28,14 +28,12 @@ class TargetSiteConfigTest extends TestCase
 
     public function testNotImplemented2()
     {
-        $this->expectException(ParsoidException::class);
-        $this->sut->bswRegexp();
+        $this->assertIsString($this->sut->bswRegexp());
     }
 
     public function testNotImplemented3()
     {
-        $this->expectException(ParsoidException::class);
-        $this->sut->categoryRegexp();
+        $this->assertIsString($this->sut->categoryRegexp());
     }
 
     public function testNotImplemented4()
@@ -58,8 +56,7 @@ class TargetSiteConfigTest extends TestCase
 
     public function testNotImplemented7()
     {
-        $this->expectException(ParsoidException::class);
-        $this->sut->redirectRegexp();
+        $this->assertIsString($this->sut->redirectRegexp());
     }
 
     public function testNotImplemented8()

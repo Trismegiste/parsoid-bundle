@@ -101,7 +101,7 @@ class TemplateSubstitutionTransformer
     {
         $env = $this->buildEnv($template); // because Env is not re-usable
 
-        $frame = new Frame(Title::newFromText('substition', $env->getSiteConfig()), $env, $param, $template);
+        $frame = new Frame(Title::newFromText('substitution', $env->getSiteConfig()), $env, $param, $template);
         $pipeline = $this->contextFactory->createFullParserPipeline($env, $frame);
 
         $doc = $pipeline->parseChunkily($template, ['sol' => true])->ownerDocument;
@@ -113,6 +113,7 @@ class TemplateSubstitutionTransformer
             'outputContentVersion' => $env->getOutputContentVersion(),
         ]);
 
+        // I don't want to revert parameters and wikicode so I remove typeof attributes :
         DOMUtils::visitDOM($body, function ($node, array $options = []) {
             if (($node instanceof Element) &&
                 (DOMUtils::matchTypeOf($node, '#mw:Param#') || DOMUtils::matchTypeOf($node, '#mw:Transclusion#'))) {
@@ -120,9 +121,11 @@ class TemplateSubstitutionTransformer
             }
         }, []);
 
+        // html content...
         $html = ContentUtils::toXML($body, ['innerXML' => true]);
-
+        // ... and back to wikitext
         $serializer = new WikitextSerializer($env, []);
+
         return $serializer->htmlToWikitext([], $html);
     }
 

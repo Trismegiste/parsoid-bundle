@@ -30,6 +30,7 @@ class TemplateSubstitutionTransformerTest extends KernelTestCase
         $this->assertStringContainsString('<div', $result);
         $this->assertStringNotContainsString('<li', $result);
         $this->assertStringContainsString('<table', $result);
+        $this->assertStringContainsString('[[rebel]]', $result);
     }
 
     function testMissingTemplate()
