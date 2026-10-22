@@ -38,19 +38,19 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 class TemplateSubstitutionTransformer
 {
     const parserOpts = [
-        'body_only' => true,
         'wrapSections' => false,
-        'discardDataParsoid' => true,
         'nativeTemplateExpansion' => true,
         'skipLanguageConversionPass' => true
     ];
 
     protected SiteConfig $siteConfig;
+    protected ParserContextFactory $contextFactory;
 
     public function __construct(SiteConfigFactory $scf, protected DataAccess $dataAccess)
     {
         // we'll be using a generic SiteConfig with a neutral link renderer, we don't care because there's no render at the end
         $this->siteConfig = $scf->create('pst', new LinkDefault());
+        $this->contextFactory = new ParserContextFactory($this->siteConfig, $this->dataAccess);
     }
 
     /**
@@ -60,7 +60,7 @@ class TemplateSubstitutionTransformer
      */
     public function replaceSubst(string $wikitext): string
     {
-        $env = static::buildEnv($this->siteConfig, $this->dataAccess, $wikitext);
+        $env = $this->buildEnv($wikitext);
 
         $tokenizer = new PegTokenizer($env);
         $expanded = $tokenizer->process($wikitext, ['sol' => true]);
@@ -126,15 +126,11 @@ class TemplateSubstitutionTransformer
         }, $content->getContent('main'));
     }
 
-    // In case we need to build Env in another place, it's static public. Usually I hate this but this class is a laboratory.
-    // Env cannot be in the DIC because it depends on the wikitext content, meaning we could only implement a Env factory as a service.
-    // (Also, I have a feeling Env wasn't created to be reusable for multiple parsings. 1 Env = 1 parsing)
-    static public function buildEnv(SiteConfig $siteConfig, DataAccess $dataAccess, string $wikitext): Env
+    public function buildEnv(string $wikitext): Env
     {
-        $pageContent = new ParsoidPageContent($wikitext);
-        $pageConfig = new ParsoidPageConfig($pageContent, $wikitext, 'en');
-        $metadata = new StubMetadataCollector($siteConfig);
+        $pageContent = $this->contextFactory->createPageContent($wikitext);
+        $pageConfig = $this->contextFactory->createPageConfig($pageContent, 'PST', 'en');
 
-        return new Env($siteConfig, $pageConfig, $dataAccess, $metadata, self::parserOpts);
+        return $this->contextFactory->createEnv($pageConfig, self::parserOpts);
     }
 }
