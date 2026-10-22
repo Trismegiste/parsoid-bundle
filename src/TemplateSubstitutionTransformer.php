@@ -23,30 +23,24 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 /**
  * This service aims to emulate the "subst:" for parsoid templates.
- * WARNING: This feature is partially implemented and very experimental.
- * I'm not sure what I am doing.
- * This feature is still in the MediaWiki Core, not in Parsoid
+ * WARNING: This feature is highly experimental because I'm not sure what I am doing.
+ * Currently, template substitution feature is still in the MediaWiki Core, not in Parsoid library
  * because it happens in the PreSaveTransform (aka "PST") stage from the persistence.
- * Even the Parsoid team is struggling to include or not this feature 
+ *
+ * Even the Parsoid team is struggling to include or not this feature and which strategy to use (full-cycle or not)
  * and APIs are evolving back and forth (look at methods with "PST" in their names).
- * 
+ *
  * So I don't pretend to recreate all the specs of this huge software,
- * I will start by simulating a dumb copy-paste of the included template (with crude parameter remplacements),
- * that's the most useful feature for "subst:".
- * 
- * One good thing about this, though:
+ * I will start this emulation with a dumb copy-paste of the subst'ed templates
+ * cleaned by a full cycle (wikitext->html->wikitext), therefore,
+ * wikicode is executed and parameters are replaced.
+ *
  * For the search of template substitution tags I'm not using some half-assed regex
  * but the PegTokenizer from Parsoid, the real McCoy.
- * @todo Using the PegTokenizer could be nice for searching outbound links in Vertex
+ * @todo Aigor project could benefit from the PegTokenizer for searching outbound links in Vertex
  */
 class TemplateSubstitutionTransformer
 {
-    const parserOpts = [
-        'wrapSections' => false,
-        'nativeTemplateExpansion' => true,
-        'skipLanguageConversionPass' => true
-    ];
-
     protected SiteConfig $siteConfig;
     protected ParserContextFactory $contextFactory;
 
@@ -134,6 +128,6 @@ class TemplateSubstitutionTransformer
         $pageContent = $this->contextFactory->createPageContent($wikitext);
         $pageConfig = $this->contextFactory->createPageConfig($pageContent, 'PST', 'en');
 
-        return $this->contextFactory->createEnv($pageConfig, self::parserOpts);
+        return $this->contextFactory->createEnv($pageConfig, Parser::envOptions);
     }
 }

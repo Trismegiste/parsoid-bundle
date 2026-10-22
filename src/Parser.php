@@ -15,6 +15,12 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
  */
 class Parser
 {
+    const envOptions = [
+        'wrapSections' => false,
+        'nativeTemplateExpansion' => true,
+        'skipLanguageConversionPass' => true
+    ];
+
     public function __construct(protected ParserContextFactory $factory) {}
 
     public function parse(string $page, string $pageTitle = 'Wiki'): string
@@ -23,11 +29,7 @@ class Parser
         $pageConfig = $this->factory->createPageConfig($pageContent, $pageTitle);
 
         // building the environnement
-        $env = $this->factory->createEnv($pageConfig, [
-            'wrapSections' => false,
-            'nativeTemplateExpansion' => true,
-            'skipLanguageConversionPass' => true
-        ]);
+        $env = $this->factory->createEnv($pageConfig, self::envOptions);
 
         $pipeline = $this->factory->createFullParserPipeline($env);
         $doc = $pipeline->parseChunkily($page, ['sol' => true])->ownerDocument;
