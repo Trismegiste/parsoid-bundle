@@ -6,12 +6,6 @@
 
 namespace Trismegiste\ParsoidBundle;
 
-use Trismegiste\ParsoidBundle\Internal\ParsoidPageConfig;
-use Trismegiste\ParsoidBundle\Internal\ParsoidPageContent;
-use Wikimedia\Parsoid\Config\DataAccess;
-use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -21,32 +15,22 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
  */
 class Parser
 {
-    public function __construct(
-        protected SiteConfig $siteConfig,
-        protected DataAccess $dataAccess,
-        protected string $langague = 'en') {}
+    public function __construct(protected ParserContextFactory $factory) {}
 
     public function parse(string $page, string $pageTitle = 'Wiki'): string
     {
-        $pageContent = new ParsoidPageContent($page);
-        $pageConfig = new ParsoidPageConfig($pageContent, $pageTitle, $this->langague);
-        $metadata = new StubMetadataCollector($this->siteConfig);
+        $pageContent = $this->factory->createPageContent($page);
+        $pageConfig = $this->factory->createPageConfig($pageContent, $pageTitle);
 
         // building the environnement
-        $env = new Env($this->siteConfig, $pageConfig, $this->dataAccess, $metadata, [
+        $env = $this->factory->createEnv($pageConfig, [
             'wrapSections' => false,
             'nativeTemplateExpansion' => true,
             'skipLanguageConversionPass' => true
         ]);
 
-        // wikitext to html
-        $pipelineFactory = $env->getPipelineFactory();
-        $pipe = $pipelineFactory->getPipeline('fullparse-wikitext-to-dom');
-        $pipe->init([
-            'frame' => $env->topFrame,
-            'toFragment' => false,
-        ]);
-        $doc = $pipe->parseChunkily($page, ['sol' => true])->ownerDocument;
+        $pipeline = $this->factory->createFullParserPipeline($env);
+        $doc = $pipeline->parseChunkily($page, ['sol' => true])->ownerDocument;
         $body = DOMCompat::getBody($doc);
 
         // adding data-parsoid attributes

@@ -14,8 +14,6 @@ use Wikimedia\Parsoid\Config\SiteConfig;
  */
 class ParserFactory
 {
-    protected array $extension = [];
-
     /**
      * Ctor
      * @param DataAccess $access The facade for accessing to page, picture and template
@@ -29,6 +27,6 @@ class ParserFactory
      */
     public function create(SiteConfig $target): Parser
     {
-        return new Parser($target, $this->access);
+        return new Parser(new ParserContextFactory($target, $this->access));
     }
 }
