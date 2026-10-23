@@ -30,9 +30,9 @@ There are 3 contracts to implement for each provider.
 
 # Usage
 
-##Service
-For each target, a parser will be created (for browser, for PDF, for ePub...),
-you can specialize your html links for each rendering.
+## Service
+For each target, a parser will be created,
+you can specialize your html links for each targeted rendering (for browser, for PDF, for ePub...).
 The name of the service is "parsoid.target.<name of the target>".
 Use bin/console deb:cont for documentation.
 
