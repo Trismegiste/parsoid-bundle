@@ -34,10 +34,14 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
  * I will start this emulation with a dumb copy-paste of the subst'ed templates
  * cleaned by a full cycle (wikitext->html->wikitext), therefore,
  * wikicode is executed and parameters are replaced.
- *
- * For the search of template substitution tags I'm not using some half-assed regex
- * but the PegTokenizer from Parsoid, the real McCoy.
- * @todo Aigor project could benefit from the PegTokenizer for searching outbound links in Vertex
+ * 
+ * This ugly code took me about 3 days to build after many many many tries (and curses) and
+ * with the (non-)help of misguided AIs (openai and gemini) confusing releases
+ * of Parsoid (including the old js version), mentioning classes and methods from MediaWiki Core
+ * that weren't included in the standalone parser and asserting things about Parsoid completely false
+ * because Parsoid comments are a mess (there are still JS comments, for the record).
+ * 
+ * I've even considered to throw away Parsoid for CommonMark (which is nice but limited because no PEG nor LL(k)).
  */
 class TemplateSubstitutionTransformer
 {
@@ -47,12 +51,16 @@ class TemplateSubstitutionTransformer
     public function __construct(SiteConfigFactory $scf, protected DataAccess $dataAccess)
     {
         // we'll be using a generic SiteConfig with a neutral link renderer, we don't care because there's no render at the end
+        // Besides, overwriting the wikilinks confused the serializer who cannot revert wikilinks as wikitext between brackets.
         $this->siteConfig = $scf->create('pst', new LinkDefault());
         $this->contextFactory = new ParserContextFactory($this->siteConfig, $this->dataAccess);
     }
 
     /**
-     * Physically replace all templates prefixed by "subst:" in the given wikitext content
+     * Physically replace all templates prefixed by "subst:" in the given wikitext content.
+     * 
+     * For the search of template substitution tags I'm not using some half-assed regex
+     * but the PegTokenizer from Parsoid, the real McCoy.
      * @param string $wikitext
      * @return string the new content with templates replaced by their content from the DB
      */
@@ -65,19 +73,17 @@ class TemplateSubstitutionTransformer
 
         foreach ($expanded as $token) {
             if ($token instanceof SelfclosingTagTk && ($token->getName() === 'template')) {
-                $key = $token->attribs[0]->k;
-                if (is_string($key) && preg_match('#^subst:(.+)$#', $key, $match)) {
-                    $stringToReplace = $token->dataParsoid->src;
+                $first = array_shift($token->attribs); // the first item in the attrib array is the template name (recursions end here)
+                // we don't care to mess up with the token, it won't be used later
+                if (is_string($first->k) && preg_match('#^subst:(.+)$#', $first->k, $match)) {
                     $templateName = trim($match[1]);
                     $transclusion = $this->dataAccess->fetchTemplateSource($env->getPageConfig(), new ParsoidLinkTarget($templateName));
                     if (is_null($transclusion)) {
                         continue;
                     }
 
-                    array_shift($token->attribs);
                     $parsed = $this->processTemplate($transclusion->getContent('main'), $token->attribs);
-
-                    $wikitext = str_replace($stringToReplace, $parsed, $wikitext);
+                    $wikitext = str_replace($token->dataParsoid->src, $parsed, $wikitext); // could fail if two exact subst are in the page but I can't rely on dataParsoid->tsr
                 }
             }
         }
@@ -86,7 +92,7 @@ class TemplateSubstitutionTransformer
     }
 
     /**
-     * Ful-cycle of template rendering for replacement
+     * Full-cycle of template rendering for replacement
      * @param string $template
      * @param array $param
      * @return string
@@ -109,13 +115,12 @@ class TemplateSubstitutionTransformer
 
         // I don't want to revert parameters and wikicode so I remove typeof attributes :
         DOMUtils::visitDOM($body, function ($node, array $options = []) {
-            if (($node instanceof Element) &&
-                (DOMUtils::matchTypeOf($node, '#mw:Param#') || DOMUtils::matchTypeOf($node, '#mw:Transclusion#'))) {
+            if (($node instanceof Element) && DOMUtils::matchTypeOf($node, '#mw:(Param|Transclusion)#')) {
                 DOMDataUtils::removeAttributeObject($node, 'typeof');
             }
         }, []);
 
-        // html content...
+        // to html content...
         $html = ContentUtils::toXML($body, ['innerXML' => true]);
         // ... and back to wikitext
         $serializer = new WikitextSerializer($env, []);

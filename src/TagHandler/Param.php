@@ -13,10 +13,12 @@ use const MB_CASE_TITLE;
 use function mb_convert_case;
 
 /**
- * Parameters sheet embedded in a <param> tag. A collection of key-values.
+ * Parameters sheet embedded in a <param> tag. A collection of key-value pairs.
  * * Each line inside the tag is treated as a parameter
- * * The parameter name and the parameter value must be separated by a colon
+ * * The parameter name and the parameter value must be separated by a colon ":"
  * * Spaces are trimmed and the parameter name is capitalized
+ * * The list is rendered with a dl/dt/dd (as it MUST be)
+ * * No CSS ! it's up to you to style it with a nice gridbox under the class 'param-infobox'
  */
 class Param extends ExtensionTagHandler
 {
