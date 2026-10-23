@@ -53,6 +53,7 @@ class TrismegisteParsoidBundle extends AbstractBundle
         $definition->rootNode()
                 ->children()
                     ->arrayNode('provider')
+                        ->isRequired()
                         ->info('All data providers needed for rendering wikitext pages')
                         ->children()
                             ->scalarNode('page')

@@ -23,6 +23,12 @@ class Parser
 
     public function __construct(protected ParserContextFactory $factory) {}
 
+    /**
+     * Parses wikitext string and returns HTML string
+     * @param string $page The wikitext content
+     * @param string $pageTitle An optional title (could be useful for ExtensionTag handler)
+     * @return string The html output
+     */
     public function parse(string $page, string $pageTitle = 'Wiki'): string
     {
         $pageContent = $this->factory->createPageContent($page);
