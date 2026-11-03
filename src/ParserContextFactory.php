@@ -26,6 +26,8 @@ use Wikimedia\Parsoid\Wt2Html\ParserPipeline;
  * On the other hand, PageConfig, PageContent... are different for each wikitext content. They aren't stored in the container.
  *
  * DP : Abstract Factory
+ * 
+ * @todo What about a nice contract for this factory since the API is frozen now ?
  */
 class ParserContextFactory
 {
