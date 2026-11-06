@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 
 /**
  * Factory for SiteConfig
+ * @link https://www.mediawiki.org/wiki/Parsoid/Internals/Module_Configuration_Schema More info on the Module Configuration Schema
  */
 class SiteConfigFactory
 {

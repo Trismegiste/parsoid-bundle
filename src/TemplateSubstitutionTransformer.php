@@ -46,7 +46,7 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 class TemplateSubstitutionTransformer
 {
     protected SiteConfig $siteConfig;
-    protected ParserContextFactory $contextFactory;
+    protected ParserContextAbstractFactory $contextFactory;
 
     public function __construct(SiteConfigFactory $scf, protected DataAccess $dataAccess)
     {
@@ -99,7 +99,7 @@ class TemplateSubstitutionTransformer
      */
     protected function processTemplate(string $template, array $param): string
     {
-        $env = $this->buildEnv($template); // because Env is not re-usable
+        $env = $this->buildEnv($template); // because Env is not re-usable I need to build it for each subst
 
         $frame = new Frame(Title::newFromText('substitution', $env->getSiteConfig()), $env, $param, $template);
         $pipeline = $this->contextFactory->createFullParserPipeline($env, $frame);
