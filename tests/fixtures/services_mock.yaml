@@ -12,3 +12,7 @@ services:
     Trismegiste\ParsoidBundle\Tests\Mockup\PageMock: ~
     Trismegiste\ParsoidBundle\Tests\Mockup\PictureMock: ~
     Trismegiste\ParsoidBundle\Tests\Mockup\TemplateMock: ~
+    
+    Trismegiste\ParsoidBundle\Tests\Mockup\PageProperty:
+        tags:
+            - {name: 'parsoid.tag', tag: 'prop' }
