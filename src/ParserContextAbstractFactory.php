@@ -41,10 +41,11 @@ interface ParserContextAbstractFactory
     /**
      * The infamous god-object Env acting as a poor man's DiC and creating tons of violations for the Hollywood Principle
      * @param PageConfig $cfg
-     * @param type $opts
+     * @param type $opts Options for Env
+     * @param array $pageProp Page properties
      * @return Env
      */
-    public function createEnv(PageConfig $cfg, array $opts = []): Env;
+    public function createEnv(PageConfig $cfg, array $opts = [], array $pageProp = []): Env;
     /**
      * Creates the pipeline ready to use. You can inject your own parameters replacing {{{younameit}}} in a template
      * @param Env $god

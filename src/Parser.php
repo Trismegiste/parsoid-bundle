@@ -27,15 +27,16 @@ class Parser
      * Parses wikitext string and returns HTML string
      * @param string $page The wikitext content
      * @param string $pageTitle An optional title (could be useful for ExtensionTag handler)
-     * @return string The html output
+     * @param array $pageProp Random page properties (reachable with the Metadata object)
+     * @return string
      */
-    public function parse(string $page, string $pageTitle = 'Wiki'): string
+    public function parse(string $page, string $pageTitle = 'Wiki', array $pageProp = []): string
     {
         $pageContent = $this->factory->createPageContent($page);
         $pageConfig = $this->factory->createPageConfig($pageContent, $pageTitle);
 
         // building the environnement
-        $env = $this->factory->createEnv($pageConfig, self::envOptions);
+        $env = $this->factory->createEnv($pageConfig, self::envOptions, $pageProp);
 
         $pipeline = $this->factory->createFullParserPipeline($env);
         $doc = $pipeline->parseChunkily($page, ['sol' => true])->ownerDocument;

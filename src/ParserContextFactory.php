@@ -42,13 +42,19 @@ class ParserContextFactory implements ParserContextAbstractFactory
     }
 
     #[Override]
-    public function createEnv(PageConfig $cfg, array $opts = []): Env
+    public function createEnv(PageConfig $cfg, array $opts = [], array $pageProp = []): Env
     {
+        $meta = new StubMetadataCollector($this->siteConfig); // dumb generic metadata collector
+        // Inject page properties into the metadata
+        foreach ($pageProp as $k => $v) {
+            $meta->setUnsortedPageProperty($k, $v);
+        }
+
         return new Env(
             $this->siteConfig,
             $cfg,
             $this->dataAccess,
-            new StubMetadataCollector($this->siteConfig), // dumb generic metadata collector
+            $meta,
             $opts);
     }
 
